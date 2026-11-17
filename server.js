@@ -7,6 +7,32 @@ const USER_SCHEMA = 'urn:ietf:params:scim:schemas:core:2.0:User';
 const LIST_SCHEMA = 'urn:ietf:params:scim:api:messages:2.0:ListResponse';
 const ERR_SCHEMA = 'urn:ietf:params:scim:api:messages:2.0:Error';
 
+const RESOURCE_TYPES = [{
+  schemas: ['urn:ietf:params:scim:schemas:core:2.0:ResourceType'],
+  id: 'User', name: 'User', endpoint: '/Users', schema: USER_SCHEMA,
+  meta: { resourceType: 'ResourceType', location: '/scim/v2/ResourceTypes/User' },
+}];
+
+const str = (name, extra = {}) => ({ name, type: 'string', multiValued: false, required: false,
+  caseExact: false, mutability: 'readWrite', returned: 'default', uniqueness: 'none', ...extra });
+
+const SCHEMAS = [{
+  id: USER_SCHEMA, name: 'User', description: 'User Account',
+  attributes: [
+    str('userName', { required: true, uniqueness: 'server' }),
+    { ...str('name'), type: 'complex', subAttributes: [str('givenName'), str('familyName'), str('formatted')] },
+    { ...str('emails'), type: 'complex', multiValued: true,
+      subAttributes: [str('value'), str('type'), { ...str('primary'), type: 'boolean' }] },
+    { ...str('active'), type: 'boolean' },
+  ],
+  meta: { resourceType: 'Schema', location: `/scim/v2/Schemas/${USER_SCHEMA}` },
+}];
+
+function listResponse(resources) {
+  return { schemas: [LIST_SCHEMA], totalResults: resources.length, startIndex: 1,
+    itemsPerPage: resources.length, Resources: resources };
+}
+
 const users = new Map();
 
 const SEED_USERS = [
@@ -92,6 +118,16 @@ const server = http.createServer(async (req, res) => {
       etag: { supported: false },
       authenticationSchemes: [{ type: 'oauthbearertoken', name: 'Bearer Token', description: 'Bearer token auth' }],
     });
+  }
+
+  if (req.method === 'GET') {
+    const d = url.pathname.match(/^\/scim\/v2\/(Schemas|ResourceTypes)(?:\/(.+))?$/);
+    if (d) {
+      const list = d[1] === 'Schemas' ? SCHEMAS : RESOURCE_TYPES;
+      if (!d[2]) return send(res, 200, listResponse(list));
+      const item = list.find((x) => x.id === decodeURIComponent(d[2]));
+      return item ? send(res, 200, item) : error(res, 404, 'Not found');
+    }
   }
 
   const m = url.pathname.match(/^\/scim\/v2\/Users(?:\/([^/]+))?$/);
