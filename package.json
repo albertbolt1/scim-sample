@@ -1,0 +1,8 @@
+{
+  "name": "scim-server",
+  "version": "1.0.0",
+  "description": "Simple SCIM 2.0 server (Users) with in-memory storage",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
