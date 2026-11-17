@@ -39,6 +39,7 @@ const SEED_USERS = [
   { userName: 'alice', name: { givenName: 'Alice', familyName: 'Smith' }, emails: [{ value: 'alice@example.com', primary: true }] },
   { userName: 'bob', name: { givenName: 'Bob', familyName: 'Jones' }, emails: [{ value: 'bob@example.com', primary: true }] },
   { userName: 'carol', name: { givenName: 'Carol', familyName: 'Lee' }, emails: [{ value: 'carol@example.com', primary: true }] },
+  { userName: 'dave.wilson@example.com', name: { givenName: 'Dave', familyName: 'Wilson' }, emails: [{ value: 'dave.wilson@example.com', primary: true }] },
 ];
 
 for (const u of SEED_USERS) {
