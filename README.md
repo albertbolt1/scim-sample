@@ -10,3 +10,4 @@ Run: `SCIM_TOKEN=secret npm start`
 
 Deploy: connect the repo in Render (Blueprint uses `render.yaml`); `SCIM_TOKEN` is auto-generated.
 Note: data is lost on restart.
+# scim-sample
